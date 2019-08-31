@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ticket_process_wizard_form_view" model="ir.ui.view">
+        <field name="name">ticket.process.wizard.form</field>
+        <field name="model">ticket.process.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <h1>
+                    <field name="ticket_line_id" readonly="1"/>
+                </h1>
+                <group>
+                    <field name="state" invisible="1"/>
+                    <field name="product_id" required="1" attrs="{'readonly':[('state','!=','process')]}"
+                           domain="[('type','=','product')]" options="{'no_create_edit':True}"/>
+                    <field name="hide" invisible="1"/>
+                    <field name="quantity"
+                           attrs="{'invisible':[('hide','=','true')],'required':[('hide','=','false')],'readonly':[('state','!=','process')]}"/>
+                    <field name="so_status" widget="radio" required="1"
+                           attrs="{'invisible':[('hide','=','true')],'readonly':[('state','!=','process')]}"/>
+                </group>
+                <footer>
+                    <button
+                            string="Confirm"
+                            name="process_refund" type="object"
+                            class="oe_highlight" attrs="{'invisible':[('state','!=','process')]}"/>
+                    <button string="Close" class="oe_link" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <menuitem id="tickets_parent_menu" name="Tickets" parent="sale.sale_menu_root" sequence="3"/>
+
+        <menuitem name="Exchange Tickets" id="exchange_tickets_menu"
+                  action="exchange_ticket_action" parent="delivery_exchange_process.tickets_parent_menu" sequence="1"/>
+
+    </data>
+</odoo>
