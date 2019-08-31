@@ -80,12 +80,10 @@
                         <group colspan="4" col="4">
                             <notebook>
                                 <page string="Ticket Lines">
-                                    <field name="ticket_line_ids" nolabel="1">
+                                    <field name="ticket_line_ids" nolabel="1"
+                                           attrs="{'readonly':[('state','=','done')]}">
                                         <tree editable="bottom" create="0" edit="true">
-                                            <field name="product_id" readonly="1" force_save="1"
-                                                   attrs="{'readonly':[('parent.state','not in',['draft'])],'required':[('parent.state','in',['draft'])]}"
-                                                   options="{'no_quick_create':True,'no_create_edit':True}"
-                                                   domain="[('id','in',parent.move_product_ids)]"/>
+                                            <field name="product_id" readonly="1" force_save="1"/>
                                             <field name="done_qty"
                                                    attrs="{'readonly':[('parent.state','!=',False)]}"/>
                                             <field name="quantity"
@@ -97,9 +95,9 @@
                                             <field name="so_status" readonly="1"
                                                    attrs="{'column_invisible':[('parent.state','!=','done')]}"/>
                                             <field name="next_action" string="Action"
-                                                   attrs="{'column_invisible': [('parent.state', 'not in', ('process', 'closed'))],'required':[('parent.state','=','process')]}"/>
+                                                   attrs="{'required':[('parent.state','=','process')]}"/>
                                             <button name="action_ticket_refund_process_ept"
-                                                    attrs="{'invisible':['|',('parent.state','not in',['process','done']),('next_action','!=','exchange')]}"
+                                                    attrs="{'invisible':[('next_action','!=','exchange')],'column_invisible':[('parent.state','in',['done']),]}"
                                                     icon="fa-cogs" string="Set product to be replace"
                                                     type="object"/>
                                             <field name="move_id" invisible="1"/>
@@ -116,16 +114,14 @@
                                                        attrs="{'readonly':[('parent.state','!=','draft')]}"/>
                                             </group>
                                             <group col="4">
-                                                <field name="so_status"
-                                                       attrs="{'column_invisible':[('parent.state','!=','done')]}"/>
+                                                <field name="so_status"/>
 
                                             </group>
                                         </form>
                                     </field>
 
                                     <group invisible="1">
-                                        <field name="move_product_ids" invisible="1"></field>
-                                        <field name="return_picking_id" invisible="1"></field>
+                                        <field name="return_picking_id" invisible="1"/>
                                     </group>
                                     <separator colspan="4" string="Notes"/>
                                     <field name="description" colspan="4" nolabel="1"/>

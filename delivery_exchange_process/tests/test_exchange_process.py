@@ -6,8 +6,6 @@ from odoo.tests import common
 
 class TestExchangeProcess(TestStockCommon):
     def test_exchange_process(self):
-        # intial so
-        print('********************')
         self.partner = self.env.ref('base.res_partner_1')
         self.product = self.env.ref('product.product_delivery_01')
         so_vals = {
@@ -42,6 +40,7 @@ class TestExchangeProcess(TestStockCommon):
         del_qty = sum(sol.qty_delivered for sol in self.so.order_line)
         self.assertEqual(del_qty, 5.0,
                          'Sale Stock: delivered quantity should be 5.0 instead of %s after complete delivery' % del_qty)
+
         # Todo Ticket create
         ticket_obj = self.env['exchange.ticket']
         picking_id = self.so.picking_ids[0] if self.so.picking_ids else False
@@ -50,8 +49,13 @@ class TestExchangeProcess(TestStockCommon):
             'picking_id': picking_id.id,
         })
         ticket.onchange_picking_id()
-        # ticket.ticket_line_ids.unlink()
-
         ticket.action_approve()
+        product_qty_bef_return = self.product.qty_available
+        print(product_qty_bef_return)
+        for move in ticket.return_picking_id.move_ids_without_package:
+            move.quantity_done = move.product_uom_qty
+        ticket.return_picking_id.button_validate()
+        self.assertEqual(ticket.state, 'process', "State must be 'Processing' !!")
+        print(product_qty_bef_return)
         #####################################################
         # Check invoice

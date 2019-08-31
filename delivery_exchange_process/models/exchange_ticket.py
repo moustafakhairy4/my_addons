@@ -10,24 +10,6 @@ class ExchangeTicket(models.Model):
     _order = "date"
     _inherit = ['mail.thread']
 
-    @api.depends('picking_id')
-    @api.multi
-    def get_product_ids(self):
-        product_ids = []
-        for record in self:
-            if not record.picking_id:
-                continue
-            for move in record.picking_id.move_lines:
-                product_ids.append(move.product_id.id)
-            record.move_product_ids = [(6, 0, product_ids)]
-
-    @api.depends('ticket_line_ids.product_id')
-    @api.multi
-    def get_line_product_ids(self):
-        for record in self:
-            lines = [p for p in self.ticket_line_ids]
-            record.move_product_ids = [(6, 0, [p.product_id.id for p in lines])]
-
     @api.onchange('picking_id')
     def onchange_picking_id(self):
         if self.picking_id:
@@ -37,15 +19,6 @@ class ExchangeTicket(models.Model):
                 (0, 0, {'product_id': move.product_id.id, 'quantity': move.product_uom_qty, 'move_id': move.id}) for
                 move in self.picking_id.move_lines]
             self.ticket_line_ids = lines
-
-    @api.depends('picking_id')
-    @api.model
-    def get_products(self):
-        for record in self:
-            move_products = []
-            for move in record.picking_id.move_lines:
-                move_products.append(move.product_id.id)
-            record.move_product_ids = [(6, 0, move_products)]
 
     name = fields.Char(string='RMA Number', default="New", readonly=True, copy=False)
     state = fields.Selection(
@@ -61,7 +34,7 @@ class ExchangeTicket(models.Model):
     invoice_id = fields.Many2one("account.invoice", string="Invoice", copy=False)
     picking_id = fields.Many2one('stock.picking', string='Delivery Order')
     sale_id = fields.Many2one('sale.order', "Sale Order", related='picking_id.sale_id')
-    move_product_ids = fields.Many2many('product.product', "Products", compute=get_products)
+
     return_picking_id = fields.Many2one('stock.picking', string='Return Delivery Order', default=False, copy=False)
     to_return_picking_ids = fields.Many2many('stock.picking', string='Return Delivery Orders', default=False,
                                              copy=False)
@@ -257,7 +230,8 @@ class ExchangeTicket(models.Model):
                 }
                 upd_record = sale_order_line_obj.new(line_vals)
                 upd_record.product_id_change()
-                line_vals = sale_order_line_obj._convert_to_write({name: upd_record[name] for name in upd_record._cache})
+                line_vals = sale_order_line_obj._convert_to_write(
+                    {name: upd_record[name] for name in upd_record._cache})
                 sale_order_line_obj.create(line_vals)
 
     @api.multi
@@ -382,7 +356,6 @@ class ExchangeTicket(models.Model):
                 line_vals.update({'quantity': list(line.values())[0], 'price_unit': price})
                 self.env['account.invoice.line'].create(line_vals)
             refund_invoice_ids_rec.append(refund_invoice.id)
-        raise ValueError()
         refund_invoice_ids_rec and self.write({'refund_invoice_ids': [(6, 0, refund_invoice_ids_rec)]})
 
 
