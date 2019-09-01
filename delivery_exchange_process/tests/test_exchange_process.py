@@ -51,11 +51,9 @@ class TestExchangeProcess(TestStockCommon):
         ticket.onchange_picking_id()
         ticket.action_approve()
         product_qty_bef_return = self.product.qty_available
-        print(product_qty_bef_return)
         for move in ticket.return_picking_id.move_ids_without_package:
             move.quantity_done = move.product_uom_qty
         ticket.return_picking_id.button_validate()
         self.assertEqual(ticket.state, 'process', "State must be 'Processing' !!")
-        print(product_qty_bef_return)
         #####################################################
         # Check invoice
